@@ -1,3 +1,5 @@
+![tests](https://github.com/kristinagrigoreva671/watershed-function-xai/actions/workflows/tests.yml/badge.svg)
+
 # What controls watershed hydrologic function? Explainable ML from CONUS to permafrost Eurasia
 
 **Large-sample hydrology · hydrologic signatures · Budyko framework · random forests + SHAP · spatial cross-validation**
