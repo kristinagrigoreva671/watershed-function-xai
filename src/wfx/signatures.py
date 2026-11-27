@@ -33,11 +33,50 @@ def baseflow_lyne_hollick(q: np.ndarray, alpha: float = 0.925, passes: int = 3,
     return b[pad:pad + n]
 
 
+def _segments(q: pd.Series, max_gap: int = 5, min_len: int = 90) -> list[np.ndarray]:
+    """Split a daily series into gap-free segments: gaps up to `max_gap` days are linearly
+    interpolated, longer gaps split the series; segments shorter than `min_len` are dropped."""
+    q = q.asfreq("D") if isinstance(q.index, pd.DatetimeIndex) else q
+    filled = q.interpolate(limit=max_gap, limit_area="inside")
+    valid = filled.notna().to_numpy()
+    values = filled.to_numpy()
+    segs, start = [], None
+    for i, v in enumerate(np.append(valid, False)):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            if i - start >= min_len:
+                segs.append(values[start:i])
+            start = None
+    return segs
+
+
 def baseflow_index(q: pd.Series) -> float:
-    qv = q.dropna().to_numpy()
-    if qv.sum() <= 0:
+    """Baseflow index; series with gaps are processed segment by segment."""
+    segs = _segments(q)
+    total = sum(s.sum() for s in segs)
+    if not segs or total <= 0:
         return np.nan
-    return float(baseflow_lyne_hollick(qv).sum() / qv.sum())
+    return float(sum(baseflow_lyne_hollick(s).sum() for s in segs) / total)
+
+
+def seasonal_flow_share(q: pd.Series, months: list[int], min_coverage: float = 0.7) -> float:
+    """Ratio of mean flow in `months` to mean annual flow, weighted by season length
+    (e.g. months=[5, 6] gives the share of annual runoff passing in May-June).
+    Returns NaN if fewer than `min_coverage` of the days in those months are observed."""
+    in_season = q.index.month.isin(months)
+    if q[in_season].notna().mean() < min_coverage or q.notna().mean() < min_coverage:
+        return np.nan
+    days = sum(pd.Period(f"2001-{m:02d}").days_in_month for m in months)
+    return float(q[in_season].mean() * days / (q.mean() * 365.0))
+
+
+def cold_region_signatures(q: pd.Series) -> dict[str, float]:
+    """Signatures that characterise cold, snow- and frost-dominated regimes."""
+    return {
+        "winter_flow_ratio": seasonal_flow_share(q, [1, 2, 3]) * 365.0 / 90.0,  # Q_JFM / Q_mean
+        "freshet_share": seasonal_flow_share(q, [5, 6]),                          # share of annual Q in May-June
+    }
 
 
 def runoff_ratio(q: pd.Series, p: pd.Series) -> float:

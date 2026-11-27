@@ -62,3 +62,35 @@ def test_attributes_load():
     assert len(df) == 671
     missing = [c for c in FEATURES + [t for t in TARGETS if t != "fu_omega"] if c not in df]
     assert not missing
+
+
+def test_bfi_handles_gaps_like_gap_free_series():
+    t = np.arange(1200)
+    q = _daily(1 + 0.5 * np.sin(2 * np.pi * t / 365) + 6 * (t % 31 == 0))
+    gappy = q.copy()
+    gappy.iloc[400:520] = np.nan  # long gap (e.g. ice period) splits the series
+    assert baseflow_index(gappy) == pytest.approx(baseflow_index(q), abs=0.03)
+
+
+def test_seasonal_flow_share_of_constant_flow():
+    from wfx.signatures import seasonal_flow_share
+    q = _daily(np.full(730, 3.0), start="2010-01-01")
+    assert seasonal_flow_share(q, [5, 6]) == pytest.approx(61 / 365, rel=1e-6)
+
+
+def test_climate_indices_snow_fraction():
+    from wfx.climate import climate_indices
+    idx = pd.date_range("2010-01-01", periods=730, freq="D")
+    p = pd.Series(1.0, index=idx)
+    t = pd.Series(np.where(idx.month.isin([12, 1, 2]), -10.0, 10.0), index=idx)
+    ci = climate_indices(p, p * 0.5, t, t)
+    assert ci["aridity"] == pytest.approx(0.5)
+    assert ci["frac_snow"] == pytest.approx((idx.month.isin([12, 1, 2])).mean())
+
+
+def test_northern_eurasia_table_shipped():
+    from wfx.northern_eurasia import load_table, select_sample
+    t = load_table()
+    assert len(t) == 2164
+    s = select_sample(t)
+    assert 1200 < len(s) < 1350 and s["prm_pc_sse"].between(0, 100).all()

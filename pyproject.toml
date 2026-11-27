@@ -20,6 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
+raw = ["xarray>=2023.1", "netCDF4>=1.6", "geopandas>=0.14", "pyarrow>=14"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

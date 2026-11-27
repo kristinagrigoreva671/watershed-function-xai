@@ -1,0 +1,49 @@
+target,model,group,n,r2,rmse,bias_sd
+baseflow_index,Climate + landscape,all,1279,0.29242018578570317,0.10967430594496422,0.014036776764001455
+baseflow_index,Climate + landscape,no permafrost (0%),650,,0.11599503254753563,-0.06933777717306404
+baseflow_index,Climate + landscape,sporadic/discontinuous (1-60%),574,,0.09976313470368418,0.16354368833457583
+baseflow_index,Climate + landscape,extensive/continuous (>=60%),55,,0.12974806961118393,-0.5609360810981281
+baseflow_index,+ permafrost extent,all,1279,0.31607330507353604,0.1078256177513584,0.010534996370015887
+baseflow_index,+ permafrost extent,no permafrost (0%),650,,0.1150876905400374,-0.050137241753076156
+baseflow_index,+ permafrost extent,sporadic/discontinuous (1-60%),574,,0.09734018665177743,0.1276637205549907
+baseflow_index,+ permafrost extent,extensive/continuous (>=60%),55,,0.12225460539554363,-0.49482742003299723
+winter_flow_ratio,Climate + landscape,all,1247,0.5859521838081699,0.25048817749910146,0.05687366098766277
+winter_flow_ratio,Climate + landscape,no permafrost (0%),642,,0.2024295650432329,0.062043297308152064
+winter_flow_ratio,Climate + landscape,sporadic/discontinuous (1-60%),552,,0.25597100741582085,0.07294947616475854
+winter_flow_ratio,Climate + landscape,extensive/continuous (>=60%),53,,0.5454234203642316,-0.17317834836160112
+winter_flow_ratio,+ permafrost extent,all,1247,0.574192292282792,0.25402048622882506,0.05562106667646497
+winter_flow_ratio,+ permafrost extent,no permafrost (0%),642,,0.20647565585066227,0.05092517577585692
+winter_flow_ratio,+ permafrost extent,sporadic/discontinuous (1-60%),552,,0.25725500523245864,0.0630920258636236
+winter_flow_ratio,+ permafrost extent,extensive/continuous (>=60%),53,,0.5590275233902942,0.03469262303266897
+freshet_share,Climate + landscape,all,1260,0.6797735796488212,0.07240294869069483,0.020866087975464267
+freshet_share,Climate + landscape,no permafrost (0%),645,,0.06133841914511945,-0.08073740093579115
+freshet_share,Climate + landscape,sporadic/discontinuous (1-60%),560,,0.077471360639084,0.10211059454316716
+freshet_share,Climate + landscape,extensive/continuous (>=60%),55,,0.12190845731756138,0.3851811183363028
+freshet_share,+ permafrost extent,all,1260,0.6928971659046561,0.07090381212554661,0.02898082681523467
+freshet_share,+ permafrost extent,no permafrost (0%),645,,0.06056193945385018,-0.0462414979427488
+freshet_share,+ permafrost extent,sporadic/discontinuous (1-60%),560,,0.07570381832025519,0.08456090726192643
+freshet_share,+ permafrost extent,extensive/continuous (>=60%),55,,0.11750170546639782,0.34522727079254295
+slope_fdc,Climate + landscape,all,1279,0.367513196803842,1.1436199232916031,-0.014947904117253774
+slope_fdc,Climate + landscape,no permafrost (0%),650,,0.9691503580861492,0.07001691465329501
+slope_fdc,Climate + landscape,sporadic/discontinuous (1-60%),574,,1.0760251486350998,-0.1309030939244513
+slope_fdc,Climate + landscape,extensive/continuous (>=60%),55,,2.6888751638967077,0.19107294585501225
+slope_fdc,+ permafrost extent,all,1279,0.36301091619752646,1.1476830652360797,-0.01042371727479683
+slope_fdc,+ permafrost extent,no permafrost (0%),650,,0.97897258235993,0.07411819276135789
+slope_fdc,+ permafrost extent,sporadic/discontinuous (1-60%),574,,1.06770753322355,-0.10067947317991405
+slope_fdc,+ permafrost extent,extensive/continuous (>=60%),55,,2.7214876972491933,-0.0676134924377657
+hfd_mean,Climate + landscape,all,1279,0.7148103012475033,15.759995728785814,-0.035518365211306226
+hfd_mean,Climate + landscape,no permafrost (0%),650,,16.707582608735176,-0.10854680940537798
+hfd_mean,Climate + landscape,sporadic/discontinuous (1-60%),574,,14.862414311466434,0.03565076255597483
+hfd_mean,Climate + landscape,extensive/continuous (>=60%),55,,13.100993883768533,0.08479816911100865
+hfd_mean,+ permafrost extent,all,1279,0.6843430595654001,16.58047047439016,-0.013206932878789891
+hfd_mean,+ permafrost extent,no permafrost (0%),650,,17.566656358370604,-0.061173475134906646
+hfd_mean,+ permafrost extent,sporadic/discontinuous (1-60%),574,,15.73450976772441,0.03621586003590074
+hfd_mean,+ permafrost extent,extensive/continuous (>=60%),55,,12.736986574603835,0.03787614591109153
+runoff_ratio,Climate + landscape,all,1145,0.5934479130072651,0.143895382473613,0.0169003746891277
+runoff_ratio,Climate + landscape,no permafrost (0%),606,,0.13070122845868626,0.052569744949896996
+runoff_ratio,Climate + landscape,sporadic/discontinuous (1-60%),492,,0.1587386425256656,-0.011885180372341904
+runoff_ratio,Climate + landscape,extensive/continuous (>=60%),47,,0.14281781690786727,-0.14167718462540785
+runoff_ratio,+ permafrost extent,all,1145,0.590646440118916,0.1443903091435239,0.015911003765041988
+runoff_ratio,+ permafrost extent,no permafrost (0%),606,,0.13095619519535126,0.05632780222907701
+runoff_ratio,+ permafrost extent,sporadic/discontinuous (1-60%),492,,0.15938329734938905,-0.01788323757673463
+runoff_ratio,+ permafrost extent,extensive/continuous (>=60%),47,,0.14445032528319365,-0.15144672238498189
