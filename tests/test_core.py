@@ -94,3 +94,26 @@ def test_northern_eurasia_table_shipped():
     assert len(t) == 2164
     s = select_sample(t)
     assert 1200 < len(s) < 1350 and s["prm_pc_sse"].between(0, 100).all()
+
+
+def test_hbv_water_balance_and_permafrost_switch():
+    from wfx.hbv import BOUNDS, simulate
+    rng = np.random.default_rng(3)
+    n = 3 * 365
+    p = rng.gamma(0.5, 4.0, n)
+    t = 10 * np.sin(2 * np.pi * np.arange(n) / 365)
+    pet = np.zeros(n)  # no evaporation: long-run outflow must approach inflow
+    theta = BOUNDS.mean(axis=1)
+    theta[2] = theta[3] = 1.0  # no precipitation correction
+    q, q_lz = simulate(p, t, pet, theta, 0.0)
+    assert np.all(q >= 0) and q.sum() <= p.sum() + 1e-6
+    _, q_lz_pf = simulate(p, t, pet, theta, 1.0)
+    assert q_lz_pf.sum() < q_lz.sum()  # full permafrost: no recharge of the groundwater store
+
+
+def test_hargreaves_pet_plausible():
+    from wfx.climate import hargreaves_pet
+    idx = pd.date_range("2010-01-01", "2010-12-31")
+    tx = pd.Series(10 + 15 * np.sin(2 * np.pi * (idx.dayofyear - 100) / 365), index=idx)
+    annual = hargreaves_pet(tx, tx - 10, 55).sum()
+    assert 400 < annual < 900

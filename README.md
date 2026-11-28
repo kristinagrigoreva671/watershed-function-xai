@@ -6,11 +6,12 @@
 
 How a watershed *collects, stores and releases* water can be summarised by hydrologic
 signatures (runoff ratio, baseflow index, flow-duration-curve slope, streamflow
-elasticity, flow timing) and by its position in the Budyko space. The project has two parts:
+elasticity, flow timing) and by its position in the Budyko space. The project has three parts:
 
 - **Part 1:** 671 catchments of CAMELS-US, a well-studied benchmark.
 - **Part 2:** 1,279 catchments of Northern Eurasia, from steppe to continuous permafrost. This region is
   missing from global large-sample datasets.
+- **Part 3:** a process-based test of the Part 2 hypothesis with the conceptual HBV model on 399 of these catchments.
 
 Part 1 asks:
 
@@ -20,6 +21,8 @@ Part 1 asks:
 
 Part 2 asks: **does permafrost control how watersheds store and release water, beyond what cold
 climate explains?** ([jump to Part 2](#part-2--northern-eurasia-does-permafrost-control-hydrologic-function-beyond-climate))
+Part 3 asks: **does a conceptual model improve when permafrost is treated as a confining layer?**
+([jump to Part 3](#part-3--a-process-based-test-is-permafrost-a-confining-layer))
 
 Everything runs from this repository: Part 1 in about 6 minutes on a laptop, Part 2 in about 8 minutes from the
 shipped catchment table. The signatures are computed from raw daily data by code in
@@ -148,6 +151,48 @@ mountains, have Q > P; they are excluded from the runoff-ratio model. HydroATLAS
 for 2008–2020 in this database. Its tributaries are the obvious next addition, from Roshydromet / AIS GMVO
 records. The 13-year record is short for elasticity and timing signatures.
 
+## Part 3 — A process-based test: is permafrost a confining layer?
+
+Part 2 ended with a hypothesis: lumped statistics cannot isolate the permafrost effect, so it should be
+tested inside a process model. Part 3 calibrates the conceptual **HBV model** (snow, soil, two groundwater
+stores; Seibert & Vis 2012) on **399 catchments**: all 300 Part 2 catchments with ≥10% permafrost plus 99
+without permafrost. It compares two structures:
+
+- **HBV**, the standard structure;
+- **HBV-PF**, where percolation to the groundwater store is multiplied by (1 − permafrost fraction). Frozen ground acts as
+  a confining layer, and deep recharge only happens through unfrozen ground. **No parameter is added**, so the
+  hypothesis is tested, not tuned.
+
+Forcing is ERA5-Land precipitation and temperature with Hargreaves PET. The model is calibrated on KGE with differential
+evolution over 2009–2014 (2008 is warm-up) and evaluated independently on 2015–2020.
+
+![HBV permafrost](figures/fig10_hbv_permafrost.png)
+
+| Permafrost | n | KGE eval, HBV | KGE eval, HBV-PF | ΔKGE (median, Wilcoxon p) | Winter-flow bias, HBV | Winter-flow bias, HBV-PF |
+|---|---|---|---|---|---|---|
+| 0% | 99 | 0.66 | 0.66 | 0 (identical) | ×0.8 | ×0.8 |
+| 10–30% | 134 | 0.74 | 0.75 | 0.00 (p = 0.69) | ×0.14 | ×0.14 |
+| 30–60% | 111 | 0.75 | 0.75 | 0.00 (p = 0.52) | ×0.13 | ×0.23 |
+| 60–100% | 55 | 0.78 | 0.77 | 0.00 (p = 0.18) | ×0.008 | ×0.04 |
+
+*Winter-flow bias is the median ratio of simulated to observed January–March flow in the evaluation period.*
+
+**Findings**
+
+- **The static confining-layer hypothesis is not supported.** HBV-PF and HBV perform the same on the evaluation
+  period at every permafrost level. Calibration absorbs the structural change.
+- **Both models fail in the same, informative way: winter flow.** In permafrost catchments the KGE-calibrated models
+  reproduce the freshet and the overall baseflow index (bias within ±0.04), but simulate winter flow that is about 7× too
+  low in discontinuous permafrost and about 125× too low in continuous permafrost. Catchments without permafrost show
+  no such failure. One linear groundwater store cannot fit both the summer recession and a 6–7-month frozen
+  season. Some slow storage keeps feeding rivers through winter, for example sub-permafrost groundwater
+  through taliks, and neither structure represents it. HBV-PF reduces the bias (×0.008 → ×0.04) but does not remove it.
+- **Calibrated parameters repeat the Part 2 pattern on their own.** Percolation capacity (PERC) rises from 2.8 mm/day
+  without permafrost to 4.2 mm/day at 30–60% and falls to 2.6 mm/day at ≥60%. This is the same rise-then-collapse seen
+  in the observed baseflow index, now coming from a process model rather than from statistics.
+- **Next steps** this sets up: multi-objective calibration that includes low-flow signatures, a third, very slow
+  groundwater store fed through unfrozen ground, and seasonally varying thaw depth driven by air temperature.
+
 ---
 
 ## Methods
@@ -180,6 +225,10 @@ python scripts/06_permafrost.py           # permafrost analyses        (~8 min)
 # optional: rebuild that table from the raw database (3.5 GB, https://doi.org/10.5281/zenodo.8432070)
 pip install -e ".[raw]"
 python scripts/05_build_northern_eurasia_table.py /path/to/Russia_HydroMeteo_Database_v04
+
+# Part 3 - HBV calibration needs the raw daily data (~25 min on 2 cores); results are shipped
+python scripts/07_hbv_permafrost.py /path/to/Russia_HydroMeteo_Database_v04
+python scripts/08_hbv_analysis.py         # figure + summary from results/hbv_permafrost.csv
 pytest                                    # unit tests
 ```
 
@@ -189,9 +238,9 @@ Outputs are written to `figures/` and `results/` (CSV tables of model skill, SHA
 ```
 ├── data/camels_us/           CAMELS attributes + 4-catchment daily sample
 ├── data/northern_eurasia/    per-catchment table (2,164 catchments): signatures, climate, HydroATLAS
-├── src/wfx/                  io, signatures, climate, budyko, features, modeling, northern_eurasia, plotting
-├── scripts/                  01-04 Part 1, 05-06 Part 2
-├── tests/                    unit tests (baseflow filter incl. gaps, elasticity, Fu round-trip, climate indices, data)
+├── src/wfx/                  io, signatures, climate, budyko, features, modeling, northern_eurasia, hbv, plotting
+├── scripts/                  01-04 Part 1, 05-06 Part 2, 07-08 Part 3
+├── tests/                    unit tests (baseflow filter, elasticity, Fu round-trip, climate, PET, HBV mass balance, data)
 ├── figures/  results/        generated outputs
 ```
 
@@ -219,6 +268,9 @@ Outputs are written to `figures/` and `results/` (CSV tables of model skill, SHA
 - Ladson, A. et al. (2013). A standard approach to baseflow separation using the Lyne and Hollick filter. *Australasian J. Water Resources*, 17(1), 25–34.
 - Sankarasubramanian, A., Vogel, R. M., Limbrunner, J. F. (2001). Climate elasticity of streamflow in the United States. *WRR*, 37(6), 1771–1781.
 - Janssen, J., Ameli, A. A. (2021). A hydrologic functional approach for improving large-sample hydrology performance in poorly gauged regions. *WRR*, 57(9).
+- Seibert, J., Vis, M. J. P. (2012). Teaching hydrological modeling with a user-friendly catchment-runoff-model software package. *HESS*, 16, 3315–3325. https://doi.org/10.5194/hess-16-3315-2012
+- Gupta, H. V. et al. (2009). Decomposition of the mean squared error and NSE performance criteria (KGE). *J. Hydrol.*, 377, 80–91.
+- Hargreaves, G. H., Samani, Z. A. (1985). Reference crop evapotranspiration from temperature. *Applied Engineering in Agriculture*, 1(2), 96–99.
 - Lundberg, S. M., Lee, S.-I. (2017). A unified approach to interpreting model predictions. *NeurIPS*.
 - Abramov, D., Kurochkina, L. (2023). Hydro-meteorological database for watersheds across the CIS (v1.3). Zenodo. https://doi.org/10.5281/zenodo.8432070 (CC BY 4.0). Published in *Russian Meteorology and Hydrology*.
 - Linke, S. et al. (2019). Global hydro-environmental sub-basin and river reach characteristics at high spatial resolution (HydroATLAS). *Scientific Data*, 6, 283. https://doi.org/10.1038/s41597-019-0300-6

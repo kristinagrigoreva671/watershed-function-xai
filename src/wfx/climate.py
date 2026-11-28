@@ -5,6 +5,25 @@ import numpy as np
 import pandas as pd
 
 
+def extraterrestrial_radiation(lat_deg: float, doy: np.ndarray) -> np.ndarray:
+    """Daily extraterrestrial radiation Ra (MJ m-2 day-1), FAO-56 eq. 21. Works in polar night/day."""
+    phi = np.deg2rad(lat_deg)
+    dr = 1 + 0.033 * np.cos(2 * np.pi * doy / 365)
+    delta = 0.409 * np.sin(2 * np.pi * doy / 365 - 1.39)
+    ws = np.arccos(np.clip(-np.tan(phi) * np.tan(delta), -1.0, 1.0))
+    ra = 24 * 60 / np.pi * 0.0820 * dr * (ws * np.sin(phi) * np.sin(delta)
+                                          + np.cos(phi) * np.cos(delta) * np.sin(ws))
+    return np.clip(ra, 0.0, None)
+
+
+def hargreaves_pet(tmax: pd.Series, tmin: pd.Series, lat_deg: float) -> pd.Series:
+    """Hargreaves-Samani potential evapotranspiration (mm/day)."""
+    ra = extraterrestrial_radiation(lat_deg, tmax.index.dayofyear.to_numpy())
+    tmean = (tmax + tmin) / 2
+    pet = 0.0023 * 0.408 * ra * (tmean + 17.8) * np.sqrt((tmax - tmin).clip(lower=0))
+    return pet.clip(lower=0)
+
+
 def climate_indices(p: pd.Series, pet: pd.Series, tmax: pd.Series, tmin: pd.Series) -> dict[str, float]:
     """Climate descriptors comparable to the CAMELS set.
 
